@@ -175,7 +175,7 @@ const CheckoutWidget = ({
       </div>
       
       {/* Coupons Section */}
-      <div ref={couponRef} className={cn("mb-6 relative", isVisible3 ? "fade-in" : "opacity-0")}>
+      <div className={cn("mb-6 relative", isVisible3 ? "fade-in" : "opacity-0")}>
         <button
           onClick={() => setShowCoupons(!showCoupons)}
           className="w-full flex items-center justify-between py-3 px-4 rounded-xl border border-[hsl(var(--checkout-border))] bg-[hsl(var(--secondary))] hover:bg-[hsl(var(--accent))] transition-all-300"
@@ -192,9 +192,27 @@ const CheckoutWidget = ({
             <ChevronDown className="h-4 w-4 text-[hsl(var(--checkout-text-light))]" />
           )}
         </button>
-        
-        {showCoupons && (
-          <div className="absolute z-10 mt-2 w-full bg-white rounded-xl checkout-shadow border border-[hsl(var(--checkout-border))] p-2 slide-up">
+      </div>
+      
+      {/* Buy Now Button */}
+      <button
+        onClick={handleBuyNow}
+        className={cn(
+          "w-full py-4 px-6 rounded-xl bg-[hsl(var(--checkout-primary))] hover:bg-[hsl(var(--checkout-primary-dark))] text-white font-medium flex items-center justify-center transition-all-300 hover-lift",
+          isVisible4 ? "fade-in" : "opacity-0"
+        )}
+      >
+        <ShoppingBag className="h-4 w-4 mr-2" />
+        Buy Now
+      </button>
+      
+      {/* Coupon dropdown positioned after the Buy Now button */}
+      {showCoupons && (
+        <div 
+          ref={couponRef}
+          className="absolute z-20 mt-4 w-full left-0 px-6 slide-up"
+        >
+          <div className="w-full bg-white rounded-xl checkout-shadow border border-[hsl(var(--checkout-border))] p-2">
             <div className="text-xs font-medium text-[hsl(var(--checkout-text-light))] px-2 py-1.5 uppercase tracking-wider">
               Available Offers
             </div>
@@ -219,20 +237,8 @@ const CheckoutWidget = ({
               ))}
             </div>
           </div>
-        )}
-      </div>
-      
-      {/* Buy Now Button */}
-      <button
-        onClick={handleBuyNow}
-        className={cn(
-          "w-full py-4 px-6 rounded-xl bg-[hsl(var(--checkout-primary))] hover:bg-[hsl(var(--checkout-primary-dark))] text-white font-medium flex items-center justify-center transition-all-300 hover-lift",
-          isVisible4 ? "fade-in" : "opacity-0"
-        )}
-      >
-        <ShoppingBag className="h-4 w-4 mr-2" />
-        Buy Now
-      </button>
+        </div>
+      )}
     </div>
   );
 };
