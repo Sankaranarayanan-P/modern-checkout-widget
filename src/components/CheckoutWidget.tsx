@@ -1,16 +1,18 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Coupon, OrderSummary } from "../types/checkout";
+import { Coupon, OrderSummary, Author } from "../types/checkout";
 import { availableCoupons, calculateOrderSummary } from "../data/coupons";
-import { Share, Check, Plus, ShoppingBag, ChevronDown, ChevronUp, Tag, X, Info, Sparkles } from "lucide-react";
+import { Share, Star, StarHalf, Tag, ShoppingBag, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { useAnimationSequence, useAnimatedValue } from "@/hooks/use-animation";
+import { Button } from "@/components/ui/button";
 
 interface CheckoutWidgetProps {
   productName?: string;
   initialSubtotal: number;
   className?: string;
+  author?: Author;
 }
 
 const formatCurrency = (amount: number): string => {
@@ -24,6 +26,11 @@ const CheckoutWidget = ({
   productName = "Your Product",
   initialSubtotal,
   className,
+  author = {
+    name: "Jacqueline Miller",
+    title: "Founder Eduport company",
+    rating: 4.5
+  },
 }: CheckoutWidgetProps) => {
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | undefined>(undefined);
   const [showCoupons, setShowCoupons] = useState(false);
@@ -110,87 +117,52 @@ const CheckoutWidget = ({
     });
   };
   
+  const renderStarRating = (rating: number) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    const stars = [];
+    
+    // Full stars
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <Star key={`star-${i}`} className="h-4 w-4 text-amber-400 fill-amber-400" />
+      );
+    }
+    
+    // Half star
+    if (hasHalfStar) {
+      stars.push(
+        <StarHalf key="half-star" className="h-4 w-4 text-amber-400 fill-amber-400" />
+      );
+    }
+    
+    // Empty stars
+    const emptyStarsCount = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStarsCount; i++) {
+      stars.push(
+        <Star key={`empty-star-${i}`} className="h-4 w-4 text-gray-300" />
+      );
+    }
+    
+    return stars;
+  };
+  
   return (
     <div className={cn(
-      "w-full max-w-sm rounded-2xl bg-white p-6 checkout-shadow transition-all-300",
+      "w-full max-w-sm rounded-xl bg-white p-6 shadow-sm border border-gray-100 transition-all-300",
       className
     )}>
-      {/* Header Section */}
-      <div className={cn("mb-6", isVisible1 ? "fade-in" : "opacity-0")}>
-        <span className="text-xs font-medium text-[hsl(var(--checkout-text-light))] uppercase tracking-wider">
-          Order Summary
-        </span>
-        <h2 className="text-2xl font-medium text-[hsl(var(--checkout-text))] mt-1">
+      {/* Price and Share Section */}
+      <div className={cn("flex justify-between items-center mb-6", isVisible1 ? "fade-in" : "opacity-0")}>
+        <h2 className="text-3xl font-bold text-gray-900">
           {formatCurrency(displayTotal)}
         </h2>
-      </div>
-      
-      {/* Share Button */}
-      <div className={cn("absolute top-6 right-6", isVisible1 ? "fade-in" : "opacity-0")}>
         <button
           onClick={handleShareClick}
-          className="p-2 rounded-full bg-[hsl(var(--secondary))] hover:bg-[hsl(var(--accent))] transition-all-300 hover-lift"
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
           aria-label="Share"
         >
-          <Share className="h-4 w-4 text-[hsl(var(--checkout-text))]" />
-        </button>
-      </div>
-      
-      {/* Order Details */}
-      <div className={cn("space-y-3 mb-6", isVisible2 ? "fade-in" : "opacity-0")}>
-        <div className="flex justify-between text-sm">
-          <span className="text-[hsl(var(--checkout-text-light))]">Subtotal</span>
-          <span className="font-medium">{formatCurrency(orderSummary.subtotal)}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-[hsl(var(--checkout-text-light))]">Shipping</span>
-          <span className="font-medium">{formatCurrency(orderSummary.shipping)}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-[hsl(var(--checkout-text-light))]">Tax</span>
-          <span className="font-medium">{formatCurrency(orderSummary.tax)}</span>
-        </div>
-        
-        {appliedCoupon && (
-          <div className="flex justify-between text-sm text-[hsl(var(--checkout-discount))]">
-            <div className="flex items-center">
-              <span>Discount</span>
-              <button 
-                onClick={removeCoupon}
-                className="ml-1 p-0.5 rounded-full hover:bg-red-50 transition-colors"
-              >
-                <X className="h-3 w-3 text-red-500" />
-              </button>
-            </div>
-            <span className="font-medium">-{formatCurrency(orderSummary.discount)}</span>
-          </div>
-        )}
-        
-        <div className="pt-3 border-t border-[hsl(var(--checkout-border))]">
-          <div className="flex justify-between font-medium">
-            <span className="text-[hsl(var(--checkout-text))]">Total</span>
-            <span className="text-[hsl(var(--checkout-text))]">{formatCurrency(orderSummary.total)}</span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Coupons Section */}
-      <div className={cn("mb-6 relative", isVisible3 ? "fade-in" : "opacity-0")}>
-        <button
-          onClick={() => setShowCoupons(!showCoupons)}
-          className="w-full flex items-center justify-between py-3 px-4 rounded-xl border border-[hsl(var(--checkout-border))] bg-[hsl(var(--secondary))] hover:bg-[hsl(var(--accent))] transition-all-300"
-        >
-          <div className="flex items-center">
-            <Tag className="h-4 w-4 mr-2 text-[hsl(var(--checkout-text-light))]" />
-            <span className="text-sm font-medium text-[hsl(var(--checkout-text))]">
-              {appliedCoupon ? appliedCoupon.code : "Apply Coupon"}
-            </span>
-          </div>
-          {showCoupons ? (
-            <ChevronUp className="h-4 w-4 text-[hsl(var(--checkout-text-light))]" />
-          ) : (
-            <ChevronDown className="h-4 w-4 text-[hsl(var(--checkout-text-light))]" />
-          )}
+          <Share className="h-5 w-5 text-gray-600" />
         </button>
       </div>
       
@@ -198,45 +170,100 @@ const CheckoutWidget = ({
       <button
         onClick={handleBuyNow}
         className={cn(
-          "w-full py-4 px-6 rounded-xl bg-[hsl(var(--checkout-primary))] hover:bg-[hsl(var(--checkout-primary-dark))] text-white font-medium flex items-center justify-center transition-all-300 hover-lift",
-          isVisible4 ? "fade-in" : "opacity-0"
+          "w-full py-3.5 px-6 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium flex items-center justify-center transition-all-300 hover-lift mb-6",
+          isVisible2 ? "fade-in" : "opacity-0"
         )}
       >
         <ShoppingBag className="h-4 w-4 mr-2" />
-        Buy Now
+        Buy now
       </button>
       
-      {/* Coupon dropdown positioned after the Buy Now button */}
-      {showCoupons && (
-        <div 
-          ref={couponRef}
-          className="absolute z-20 mt-4 w-full left-0 px-6 slide-up"
-        >
-          <div className="w-full bg-white rounded-xl checkout-shadow border border-[hsl(var(--checkout-border))] p-2">
-            <div className="text-xs font-medium text-[hsl(var(--checkout-text-light))] px-2 py-1.5 uppercase tracking-wider">
-              Available Offers
-            </div>
-            <div className="space-y-2 mt-1 max-h-48 overflow-y-auto">
-              {availableCoupons.map((coupon) => (
-                <button
-                  key={coupon.id}
-                  onClick={() => applyCoupon(coupon)}
-                  className="w-full flex items-center justify-between p-2.5 text-left rounded-lg hover:bg-[hsl(var(--secondary))] transition-all-300"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center">
-                      <Sparkles className="h-3.5 w-3.5 mr-1.5 text-[hsl(var(--checkout-secondary))]" />
-                      <span className="text-sm font-medium text-[hsl(var(--checkout-text))]">{coupon.code}</span>
+      {/* Available Offers Section */}
+      <div className={cn("mb-6", isVisible3 ? "fade-in" : "opacity-0")}>
+        <h3 className="text-lg font-medium text-gray-900 mb-3">Available Offers?</h3>
+        <div className="space-y-2" ref={couponRef}>
+          {!showCoupons ? (
+            <button
+              onClick={() => setShowCoupons(true)}
+              className="w-full block focus:outline-none"
+            >
+              <div className="w-full bg-gray-50 rounded-lg p-3.5 text-left relative pr-10 hover:bg-gray-100 transition-colors">
+                <div className="flex">
+                  <Tag className="h-4 w-4 text-amber-500 mr-2 rotate-[15deg]" />
+                  <span className="font-semibold text-gray-700">WELCOME</span>
+                </div>
+                <p className="text-sm text-gray-600 mt-0.5">5% off up to $1,500</p>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              </div>
+            </button>
+          ) : (
+            <div className="relative">
+              <button
+                onClick={() => setShowCoupons(false)}
+                className="w-full block focus:outline-none mb-2"
+              >
+                <div className="w-full bg-gray-50 rounded-lg p-3.5 text-left relative pr-10">
+                  <div className="flex">
+                    <Tag className="h-4 w-4 text-amber-500 mr-2 rotate-[15deg]" />
+                    <span className="font-semibold text-gray-700">WELCOME</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-0.5">5% off up to $1,500</p>
+                  <ChevronUp className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                </div>
+              </button>
+              
+              {/* Coupon options */}
+              <div className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                {availableCoupons.map((coupon) => (
+                  <button
+                    key={coupon.id}
+                    onClick={() => applyCoupon(coupon)}
+                    className="w-full flex items-start p-3.5 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-none"
+                  >
+                    <div>
+                      <div className="flex">
+                        <Tag className="h-4 w-4 text-amber-500 mr-2 rotate-[15deg]" />
+                        <span className="font-semibold text-gray-700">{coupon.code}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-0.5">{coupon.description}</p>
                     </div>
-                    <p className="text-xs text-[hsl(var(--checkout-text-light))] mt-0.5">{coupon.description}</p>
-                  </div>
-                  <div className="pl-2">
-                    <Plus className="h-4 w-4 text-[hsl(var(--checkout-text-light))]" />
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Author Section */}
+      {author && (
+        <div className={cn("pt-5 border-t border-gray-100", isVisible4 ? "fade-in" : "opacity-0")}>
+          <div className="flex items-center">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-r from-blue-300 to-purple-300 mr-3">
+              {author.avatarUrl ? (
+                <img src={author.avatarUrl} alt={author.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-white font-medium">
+                  {author.name.substring(0, 1)}
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="text-base font-semibold text-gray-900">By {author.name}</div>
+              <div className="text-sm text-gray-500">{author.title}</div>
             </div>
           </div>
+          
+          {author.rating && (
+            <div className="flex items-center mt-3">
+              <div className="flex space-x-0.5 mr-2">
+                {renderStarRating(author.rating)}
+              </div>
+              <span className="text-sm font-medium text-gray-700">
+                {author.rating}/5.0
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>

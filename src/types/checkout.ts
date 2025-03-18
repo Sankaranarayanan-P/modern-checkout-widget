@@ -15,3 +15,10 @@ export interface OrderSummary {
   discount: number;
   total: number;
 }
+
+export interface Author {
+  name: string;
+  title: string;
+  avatarUrl?: string;
+  rating?: number;
+}
