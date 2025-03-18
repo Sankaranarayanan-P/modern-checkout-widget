@@ -2,11 +2,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Coupon, OrderSummary, Author } from "../types/checkout";
 import { availableCoupons, calculateOrderSummary } from "../data/coupons";
-import { Share, Star, StarHalf, Tag, ShoppingBag, ChevronDown, ChevronUp } from "lucide-react";
+import { Share, Star, StarHalf, Tag, ShoppingBag, ChevronDown, ChevronUp, X, Check, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { useAnimationSequence, useAnimatedValue } from "@/hooks/use-animation";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface CheckoutWidgetProps {
   productName?: string;
@@ -182,17 +183,48 @@ const CheckoutWidget = ({
       <div className={cn("mb-6", isVisible3 ? "fade-in" : "opacity-0")}>
         <h3 className="text-lg font-medium text-gray-900 mb-3">Available Offers?</h3>
         <div className="space-y-2" ref={couponRef}>
-          {!showCoupons ? (
+          {appliedCoupon ? (
+            <div className="rounded-lg border border-indigo-100 bg-indigo-50">
+              <div className="p-3.5 relative">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-100 mr-3">
+                      <Check className="h-4 w-4 text-indigo-600" />
+                    </div>
+                    <div>
+                      <div className="flex items-center">
+                        <span className="font-semibold text-indigo-700">{appliedCoupon.code}</span>
+                        <Badge variant="outline" className="ml-2 bg-indigo-100 text-indigo-700 border-0">
+                          Applied
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-indigo-600 mt-0.5">{appliedCoupon.description}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={removeCoupon}
+                    className="text-indigo-500 hover:text-indigo-700 p-1 rounded-full hover:bg-indigo-100 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : !showCoupons ? (
             <button
               onClick={() => setShowCoupons(true)}
               className="w-full block focus:outline-none"
             >
-              <div className="w-full bg-gray-50 rounded-lg p-3.5 text-left relative pr-10 hover:bg-gray-100 transition-colors">
-                <div className="flex">
-                  <Tag className="h-4 w-4 text-amber-500 mr-2 rotate-[15deg]" />
-                  <span className="font-semibold text-gray-700">WELCOME</span>
+              <div className="w-full rounded-lg border border-gray-200 p-3.5 text-left relative pr-10 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-amber-100 mr-3">
+                    <Percent className="h-4 w-4 text-amber-600" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-700">Select a coupon</span>
+                    <p className="text-sm text-gray-500 mt-0.5">Apply discount to your order</p>
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-0.5">5% off up to $1,500</p>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
             </button>
@@ -202,31 +234,40 @@ const CheckoutWidget = ({
                 onClick={() => setShowCoupons(false)}
                 className="w-full block focus:outline-none mb-2"
               >
-                <div className="w-full bg-gray-50 rounded-lg p-3.5 text-left relative pr-10">
-                  <div className="flex">
-                    <Tag className="h-4 w-4 text-amber-500 mr-2 rotate-[15deg]" />
-                    <span className="font-semibold text-gray-700">WELCOME</span>
+                <div className="w-full rounded-lg border border-gray-200 p-3.5 text-left relative pr-10">
+                  <div className="flex items-center">
+                    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-amber-100 mr-3">
+                      <Percent className="h-4 w-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-700">Select a coupon</span>
+                      <p className="text-sm text-gray-500 mt-0.5">Apply discount to your order</p>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 mt-0.5">5% off up to $1,500</p>
                   <ChevronUp className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </div>
               </button>
               
               {/* Coupon options */}
-              <div className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+              <div className="w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden divide-y divide-gray-100">
                 {availableCoupons.map((coupon) => (
                   <button
                     key={coupon.id}
                     onClick={() => applyCoupon(coupon)}
-                    className="w-full flex items-start p-3.5 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-none"
+                    className="w-full flex items-center p-3.5 text-left hover:bg-gray-50 transition-colors"
                   >
-                    <div>
-                      <div className="flex">
-                        <Tag className="h-4 w-4 text-amber-500 mr-2 rotate-[15deg]" />
-                        <span className="font-semibold text-gray-700">{coupon.code}</span>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-0.5">{coupon.description}</p>
+                    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-purple-100 mr-3">
+                      <Tag className="h-4 w-4 text-purple-600 rotate-[15deg]" />
                     </div>
+                    <div>
+                      <div className="font-semibold text-gray-700">{coupon.code}</div>
+                      <p className="text-sm text-gray-500 mt-0.5">{coupon.description}</p>
+                    </div>
+                    {coupon.expiresAt && (
+                      <Badge variant="outline" className="ml-auto text-xs bg-gray-50 text-gray-600 border-0">
+                        Expires {new Date(coupon.expiresAt).toLocaleDateString()}
+                      </Badge>
+                    )}
                   </button>
                 ))}
               </div>
