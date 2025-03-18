@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -49,6 +50,15 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Custom colors for checkout widget */
+    --checkout-primary: 210 100% 56%;
+    --checkout-primary-dark: 210 100% 45%;
+    --checkout-secondary: 264 100% 61%;
+    --checkout-text: 220 14% 11%;
+    --checkout-text-light: 220 9% 46%;
+    --checkout-border: 220 13% 91%;
+    --checkout-discount: 142 76% 36%;
   }
 
   .dark {
@@ -97,5 +107,88 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@layer utilities {
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+  
+  .checkout-shadow {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .transition-height {
+    transition: height 0.3s ease;
+  }
+  
+  .transition-all-300 {
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  
+  .hover-lift {
+    transition: transform 0.2s ease;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
   }
 }
